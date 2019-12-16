@@ -10,8 +10,9 @@ import { logout } from "../../services/auth";
 
 import Properties from "./components/Properties";
 import Button from "./components/Button";
-
-import { Container, ButtonContainer } from "./styles";
+import { Container, ButtonContainer, PointReference } from "./styles";
+import { ModalRoute } from "react-router-modal";
+import AddProperty from "../AddProperty";
 
 const TOKEN =
     "pk.eyJ1IjoiaGlnb3JvY2tldCIsImEiOiJjamlrdWJuY3gyaHYxM3Bvbmg0cGRwY3R0In0._TdjX9rYrjZ6Q6FFXOGwsQ";
@@ -38,7 +39,8 @@ class Map extends Component {
             bearing: 0,
             pitch: 0
         },
-        properties: []
+        properties: [],
+        addActivate: false
     };
 
     componentDidMount() {
@@ -69,6 +71,12 @@ class Map extends Component {
     renderActions() {
         return (
             <ButtonContainer>
+                <Button
+                    color="#fc6963"
+                    onClick={() => this.setState({ addActivate: true })}
+                >
+                    <i className="fa fa-plus" />
+                </Button>
                 <Button color="#222" onClick={this.handleLogout}>
                     <i className="fa fa-times" />
                 </Button>
@@ -76,9 +84,40 @@ class Map extends Component {
         );
     }
 
+    renderButtonAdd() {
+        return (
+            this.state.addActivate && (
+                <PointReference>
+                    <i className="fa fa-map-marker" />
+                    <div>
+                        <button onClick={this.handleAddProperty} type="button">
+                            Adicionar
+                </button>
+                        <button
+                            onClick={() => this.setState({ addActivate: false })}
+                            className="cancel"
+                        >
+                            Cancelar
+                </button>
+                    </div>
+                </PointReference>
+            )
+        );
+    }
+
+    handleAddProperty = () => {
+        const { match, history } = this.props;
+        const { latitude, longitude } = this.state.viewport;
+        history.push(
+            `${match.url}/properties/add?latitude=${latitude}&longitude=${longitude}`
+        );
+
+        this.setState({ addActivate: false });
+    };
+
     render() {
-        const { containerWidth: width, containerHeight: height } = this.props;
-        const { properties } = this.state;
+        const { containerWidth: width, containerHeight: height, match } = this.props;
+        const { properties, addActivate } = this.state;
         return (
             <Fragment>
                 <MapGL
@@ -90,9 +129,15 @@ class Map extends Component {
                     onViewportChange={viewport => this.setState({ viewport })}
                     onViewStateChange={this.updatePropertiesLocalization.bind(this)}
                 >
-                    <Properties properties={properties} />
+                    {!addActivate && <Properties match={match} properties={properties} />}
                 </MapGL>
                 {this.renderActions()}
+                {this.renderButtonAdd()}
+                <ModalRoute
+                    path={`${match.url}/properties/add`}
+                    parentPath={match.url}
+                    component={AddProperty}
+                />
             </Fragment>
         );
     }
