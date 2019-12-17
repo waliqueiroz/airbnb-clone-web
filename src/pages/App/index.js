@@ -14,6 +14,8 @@ import { Container, ButtonContainer, PointReference } from "./styles";
 import { ModalRoute } from "react-router-modal";
 import AddProperty from "../AddProperty";
 
+import Property from "../Property";
+
 const TOKEN =
     "pk.eyJ1IjoiaGlnb3JvY2tldCIsImEiOiJjamlrdWJuY3gyaHYxM3Bvbmg0cGRwY3R0In0._TdjX9rYrjZ6Q6FFXOGwsQ";
 
@@ -137,6 +139,11 @@ class Map extends Component {
                     path={`${match.url}/properties/add`}
                     parentPath={match.url}
                     component={AddProperty}
+                />
+                <ModalRoute
+                    path={`${match.url}/property/:id`}
+                    parentPath={match.url}
+                    component={Property}
                 />
             </Fragment>
         );
